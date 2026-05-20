@@ -3,14 +3,14 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Illuminate\Contracts\Auth\MustVerifyEmail; // 1. Importer l'interface
+// use Illuminate\Contracts\Auth\MustVerifyEmail; // 1. Importer l'interface
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmail
+class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
       use HasApiTokens, HasFactory, Notifiable;
@@ -43,5 +43,13 @@ class User extends Authenticatable implements MustVerifyEmail
             'email_verified_at' => 'datetime',
             'password' => 'hashed',
         ];
+    }
+
+    /**
+     * Relation: Un utilisateur a plusieurs réservations.
+     */
+    public function reservations()
+    {
+        return $this->hasMany(Reservation::class);
     }
 }

@@ -21,6 +21,7 @@ import AddCar from './pages/admin/AddCar'
 import EditCar from './pages/admin/EditCar'
 import ReservationList from './pages/admin/ReservationList'
 import ClientList from './pages/admin/ClientList'
+import MesReservations from './pages/MesReservations'
 
 export default function App() {
   const location = useLocation()
@@ -40,6 +41,7 @@ export default function App() {
         <Route path="/contact" element={<Contact />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<Signup />} />
+        <Route path="/mes-reservations" element={<MesReservations />} />
         <Route path="/cars/:id" element={<CarDetails />} />
 
         {/* Redirections de sécurité vers le login */}

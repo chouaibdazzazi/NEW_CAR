@@ -1,6 +1,8 @@
 import { useState } from 'react'
+import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import api from '../services/api'
 
 // ── Inline SVG Logo ──────────────────────────────────────────────────────────
 function CarFlowLogoSVG({ size = 36 }) {
@@ -33,23 +35,43 @@ function CarFlowLogoSVG({ size = 36 }) {
 }
 
 export default function Login() {
-  const { login } = useAuth()
   const navigate = useNavigate()
+  const { login } = useAuth()
   const [form, setForm] = useState({ email: '', password: '' })
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
+  useEffect(() => {
+    // Si un token existe, on redirige immédiatement l'utilisateur vers l'accueil
+    if (localStorage.getItem('token')) {
+      navigate('/')
+    }
+  }, [navigate])
+
+  // Le reste de ton code (handleSubmit, return...) reste identique
+
 
   const handleSubmit = async e => {
     e.preventDefault()
     setError('')
     setLoading(true)
     try {
-      const user = await login(form.email, form.password)
-      navigate(user.role === 'admin' ? '/admin' : '/client')
+      const response = await api.post('/login', { email: form.email, password: form.password })
+      
+      // 🔍 DEBUG : Affiche exactement ce que Laravel retourne
+      console.log('RÉPONSE DU BACKEND :', response.data)
+      
+      // 🌟 1. Sauvegarde le token pour rester connecté
+      localStorage.setItem('token', response.data.token)
+      localStorage.setItem('user', JSON.stringify(response.data.user))
+      
+      // 🌟 2. Redirection selon le rôle utilisateur
+      if (response.data.user?.role === 'admin') {
+        navigate('/admin/cars')
+      } else {
+        navigate('/')
+      }
     } catch (err) {
-      // Log full error for debugging and show backend message when available
-      console.error('Login error:', err?.response || err)
-      const msg = err?.response?.data?.message || 'Email ou mot de passe incorrect'
+      const msg = err?.response?.data?.message || 'Identifiants incorrects'
       setError(msg)
     } finally {
       setLoading(false)

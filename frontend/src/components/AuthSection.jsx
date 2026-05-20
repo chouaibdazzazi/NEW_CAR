@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Mail, Lock, User } from 'lucide-react'
+import axios from 'axios'
 
 export default function AuthSection() {
   const navigate = useNavigate()
@@ -8,10 +9,12 @@ export default function AuthSection() {
   // Login State
   const [login, setLogin] = useState({ email: '', password: '' })
   const [loginError, setLoginError] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
 
   // Signup State
   const [signup, setSignup] = useState({ fullName: '', email: '', password: '', confirmPassword: '' })
   const [signupError, setSignupError] = useState('')
+  const [signupLoading, setSignupLoading] = useState(false)
 
   const handleLoginChange = (e) => {
     setLogin(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -23,17 +26,32 @@ export default function AuthSection() {
     setSignupError('')
   }
 
-  const handleLoginSubmit = (e) => {
+  const handleLoginSubmit = async (e) => {
     e.preventDefault()
     if (!login.email || !login.password) {
       setLoginError('Veuillez remplir tous les champs')
       return
     }
-    // Simulation d'authentification réussie
-    navigate('/clients')
+
+    setLoginLoading(true)
+    try {
+      const response = await axios.post('http://localhost:8000/api/login', {
+        email: login.email,
+        password: login.password
+      })
+
+      localStorage.setItem('token', response.data.token)
+      localStorage.setItem('user', JSON.stringify(response.data.user))
+
+      navigate('/')
+    } catch (err) {
+      setLoginError(err.response?.data?.message || 'Identifiants incorrects')
+    } finally {
+      setLoginLoading(false)
+    }
   }
 
-  const handleSignupSubmit = (e) => {
+  const handleSignupSubmit = async (e) => {
     e.preventDefault()
     if (!signup.fullName || !signup.email || !signup.password || !signup.confirmPassword) {
       setSignupError('Veuillez remplir tous les champs')
@@ -43,12 +61,33 @@ export default function AuthSection() {
       setSignupError('Les mots de passe ne correspondent pas')
       return
     }
-    if (signup.password.length < 6) {
-      setSignupError('Le mot de passe doit contenir au moins 6 caractères')
+    if (signup.password.length < 8) {
+      setSignupError('Le mot de passe doit contenir au moins 8 caractères')
       return
     }
-    // Simulation d'inscription réussie
-    navigate('/clients')
+
+    setSignupLoading(true)
+    try {
+      const response = await axios.post('http://localhost:8000/api/register', {
+        name: signup.fullName,
+        email: signup.email,
+        password: signup.password
+      })
+
+      if (response.data.access_token) {
+        localStorage.setItem('token', response.data.access_token)
+      }
+      if (response.data.user) {
+        localStorage.setItem('user', JSON.stringify(response.data.user))
+      }
+
+      alert('Compte créé avec succès !')
+      navigate('/')
+    } catch (err) {
+      setSignupError(err.response?.data?.message || "Impossible de créer le compte")
+    } finally {
+      setSignupLoading(false)
+    }
   }
 
   const inputClasses = "w-full pl-10 pr-4 py-3 rounded-xl border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 text-slate-900 dark:text-white focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-400 transition-all placeholder-slate-400 dark:placeholder-slate-500"

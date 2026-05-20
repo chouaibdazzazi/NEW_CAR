@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
+import { useState, useEffect, useRef } from 'react';
+import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
 
 function CarFlowLogoSVG({ size = 36 }) {
   return (
@@ -29,13 +29,41 @@ function CarFlowLogoSVG({ size = 36 }) {
 
 export default function Navbar() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [scrolled, setScrolled] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
+  const menuRef = useRef(null);
+
+  // Vérifier en temps réel si l'utilisateur possède un token
+  const isLoggedIn = !!localStorage.getItem('token');
+
+  // 🌟 RÉCUPÉRATION DU NOM DE L'UTILISATEUR
+  const userData = localStorage.getItem('user') ? JSON.parse(localStorage.getItem('user')) : null;
+  const userName = userData?.name || 'Client CarFlow';
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 50);
     window.addEventListener('scroll', onScroll, { passive: true });
     return () => window.removeEventListener('scroll', onScroll);
   }, []);
+
+  // Fermer le menu si l'utilisateur clique en dehors
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (menuRef.current && !menuRef.current.contains(event.target)) {
+        setIsOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleSignOut = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    setIsOpen(false);
+    navigate('/login');
+  };
 
   const navLinks = [
     { name: 'HOME', path: '/' },
@@ -79,7 +107,7 @@ export default function Navbar() {
         }
         .nav-btn:hover, .nav-btn.active { color: #00C9B1; }
         .nav-btn:hover::after, .nav-btn.active::after { transform: scaleX(1); }
-        .nav-right { display: flex; align-items: center; gap: 12px; }
+        .nav-right { display: flex; align-items: center; gap: 12px; position: relative; }
         .icon-btn {
           background: none; border: none; color: #bbb; cursor: pointer;
           width: 34px; height: 34px; border-radius: 50%;
@@ -87,11 +115,31 @@ export default function Navbar() {
           transition: background 0.2s, color 0.2s;
         }
         .icon-btn:hover { background: rgba(0,201,177,0.15); color: #00C9B1; }
+        
+        /* Style du menu déroulant */
+        .dropdown-menu {
+          position: absolute; right: 0; top: 44px; w-size: 220px; width: 220px;
+          background: #141721; border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+          padding: 6px; z-index: 200; display: flex; flex-direction: column;
+        }
+        .dropdown-header { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .dropdown-item {
+          display: flex; align-items: center; gap: 10px;
+          padding: 10px 14px; color: #ccc; font-size: 13.5px;
+          text-decoration: none; border-radius: 8px; transition: background 0.2s, color 0.2s;
+          background: none; border: none; width: 100%; text-align: left; cursor: pointer;
+        }
+        .dropdown-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .dropdown-item.signout { color: #ff5c5c; }
+        .dropdown-item.signout:hover { background: rgba(255,92,92,0.1); color: #ff7373; }
+
         @media (max-width: 768px) {
           .navbar { padding: 0 20px; }
           .nav-center { display: none; }
         }
       `}</style>
+
       <nav className={`navbar ${scrolled ? 'scrolled' : 'top'}`}>
         <NavLink to="/" className="nav-logo">
           <CarFlowLogoSVG size={36} />
@@ -110,12 +158,55 @@ export default function Navbar() {
               {lnk.name}
             </NavLink>
           ))}
-          <button className="nav-btn" onClick={() => navigate('/login')}>LOGIN/SIGNUP</button>
+          
+          {/* Affiche LOGIN/SIGNUP au centre uniquement si non connecté */}
+          {!isLoggedIn && (
+            <button className="nav-btn" onClick={() => navigate('/login')}>LOGIN/SIGNUP</button>
+          )}
         </div>
 
-        <div className="nav-right">
+        <div className="nav-right" ref={menuRef}>
           <button className="icon-btn" title="Rechercher">🔍</button>
-          <button className="icon-btn" onClick={() => navigate('/login')} title="Profil">👤</button>
+          
+          {isLoggedIn ? (
+            <>
+              {/* Utilisateur CONNECTÉ -> Icône interactive avec Dropdown */}
+              <button 
+                className="icon-btn" 
+                onClick={() => setIsOpen(!isOpen)} 
+                title="Mon Espace"
+                style={{ background: isOpen ? 'rgba(0,201,177,0.15)' : 'none', color: isOpen ? '#00C9B1' : '#bbb' }}
+              >
+                👤
+              </button>
+
+              {isOpen && (
+                <div className="dropdown-menu">
+                  <div className="dropdown-header">
+                    <div style={{ fontSize: 11, color: '#888' }}>Bienvenue</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#00C9B1', marginTop: 2, textTransform: 'capitalize' }} className="truncate">
+                      {userName}
+                    </div>
+                  </div>
+                  
+                  <NavLink to="/profile" className="dropdown-item" onClick={() => setIsOpen(false)}>
+                    ⚙️ Settings
+                  </NavLink>
+                  
+                  <Link to="/mes-reservations" className="dropdown-item" onClick={() => setIsOpen(false)}>
+                    📅 Mes Réservations
+                  </Link>
+                  
+                  <button onClick={handleSignOut} className="dropdown-item signout">
+                    🚪 Sign out
+                  </button>
+                </div>
+              )}
+            </>
+          ) : (
+            /* Utilisateur NON connecté -> Renvoie vers le login */
+            <button className="icon-btn" onClick={() => navigate('/login')} title="Connexion">👤</button>
+          )}
         </div>
       </nav>
     </>
