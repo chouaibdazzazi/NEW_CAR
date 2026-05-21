@@ -146,10 +146,10 @@ export default function Cars() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-950 flex items-center justify-center">
+      <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-slate-700 border-t-blue-500 rounded-full animate-spin" />
-          <p className="text-slate-400">Chargement du parc automobile...</p>
+          <div className="w-12 h-12 border-4 border-slate-300 dark:border-slate-700 border-t-blue-500 rounded-full animate-spin" />
+          <p className="text-slate-500 dark:text-slate-400">Chargement du parc automobile...</p>
         </div>
       </div>
     )
@@ -158,14 +158,14 @@ export default function Cars() {
   const estimate = calculateEstimate()
 
   return (
-    <div className="min-h-screen bg-slate-950 py-20 px-4 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white py-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">
         {/* En-tête */}
         <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
+          <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
             Notre Flotte de Véhicules
           </h1>
-          <p className="text-lg text-slate-400 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
             Découvrez nos véhicules premium et réservez votre prochain trajet en quelques clics.
           </p>
         </div>

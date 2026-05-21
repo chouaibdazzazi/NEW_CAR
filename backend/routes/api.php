@@ -22,6 +22,9 @@ Route::post('/email/verification-notification', function (Request $request) {
     return response()->json(['message' => 'Lien de vérification renvoyé !']);
 })->middleware(['auth:sanctum'])->name('verification.send');
 
+//routes api pour les services
+Route::get('/services', [App\Http\Controllers\ServiceController::class, 'index']);
+
 // Auth publique
 Route::post('/register', [AuthController::class, 'register']);
 Route::post('/login',    [AuthController::class, 'login']);

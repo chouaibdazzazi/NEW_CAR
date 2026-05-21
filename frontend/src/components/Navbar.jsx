@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import ThemeToggle from './ThemeToggle';
 
 function CarFlowLogoSVG({ size = 36 }) {
   return (
@@ -80,22 +81,24 @@ export default function Navbar() {
           position: fixed; top: 0; left: 0; right: 0; z-index: 100;
           display: flex; align-items: center; justify-content: space-between;
           padding: 0 48px; height: 64px;
-          transition: background 0.4s, box-shadow 0.4s;
+          transition: background 0.4s, box-shadow 0.4s, color 0.4s;
           font-family: 'Poppins', sans-serif;
-        }
-        .navbar.scrolled {
-          background: rgba(15,17,23,0.97);
-          box-shadow: 0 2px 24px rgba(0,0,0,0.5);
+          background: var(--navbar-bg);
+          color: var(--navbar-text);
+          border-bottom: 1px solid transparent;
           backdrop-filter: blur(16px);
         }
+        .navbar.scrolled {
+          background: var(--navbar-bg);
+          box-shadow: 0 2px 24px rgba(0,0,0,0.08);
+        }
         .navbar.top {
-          background: rgba(15,17,23,0.6);
-          backdrop-filter: blur(6px);
+          background: var(--navbar-bg-top);
         }
         .nav-logo { display: flex; align-items: center; gap: 8px; cursor: pointer; text-decoration: none; }
         .nav-center { display: flex; align-items: center; gap: 28px; }
         .nav-btn {
-          background: none; border: none; color: #bbb;
+          background: none; border: none; color: var(--navbar-text-muted);
           font-size: 12.5px; font-weight: 500;
           letter-spacing: 1.2px; padding: 4px 0;
           transition: color 0.2s; position: relative;
@@ -109,28 +112,28 @@ export default function Navbar() {
         .nav-btn:hover::after, .nav-btn.active::after { transform: scaleX(1); }
         .nav-right { display: flex; align-items: center; gap: 12px; position: relative; }
         .icon-btn {
-          background: none; border: none; color: #bbb; cursor: pointer;
+          background: none; border: none; color: var(--navbar-text-muted); cursor: pointer;
           width: 34px; height: 34px; border-radius: 50%;
           display: flex; align-items: center; justify-content: center; font-size: 17px;
           transition: background 0.2s, color 0.2s;
         }
-        .icon-btn:hover { background: rgba(0,201,177,0.15); color: #00C9B1; }
+        .icon-btn:hover { background: var(--navbar-hover); color: #00C9B1; }
         
         /* Style du menu déroulant */
         .dropdown-menu {
           position: absolute; right: 0; top: 44px; w-size: 220px; width: 220px;
-          background: #141721; border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.6);
+          background: var(--dropdown-bg); border: 1px solid var(--dropdown-border);
+          border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.16);
           padding: 6px; z-index: 200; display: flex; flex-direction: column;
         }
-        .dropdown-header { padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .dropdown-header { padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.08); }
         .dropdown-item {
           display: flex; align-items: center; gap: 10px;
-          padding: 10px 14px; color: #ccc; font-size: 13.5px;
+          padding: 10px 14px; color: var(--dropdown-text); font-size: 13.5px;
           text-decoration: none; border-radius: 8px; transition: background 0.2s, color 0.2s;
           background: none; border: none; width: 100%; text-align: left; cursor: pointer;
         }
-        .dropdown-item:hover { background: rgba(255,255,255,0.05); color: #fff; }
+        .dropdown-item:hover { background: var(--dropdown-hover); color: #fff; }
         .dropdown-item.signout { color: #ff5c5c; }
         .dropdown-item.signout:hover { background: rgba(255,92,92,0.1); color: #ff7373; }
 
@@ -166,6 +169,7 @@ export default function Navbar() {
         </div>
 
         <div className="nav-right" ref={menuRef}>
+          <ThemeToggle />
           <button className="icon-btn" title="Rechercher">🔍</button>
           
           {isLoggedIn ? (

@@ -1,23 +1,13 @@
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import axios from 'axios'
+import * as Icons from 'lucide-react'
 
 const STATS = [
   { value: '500+', label: 'Véhicules disponibles' },
   { value: '12K+', label: 'Clients satisfaits' },
   { value: '15 ans', label: "D'expérience" },
   { value: '24/7', label: 'Assistance client' },
-]
-
-const SERVICES = [
-  { icon: '🚗', title: 'Location courte durée', desc: 'De quelques heures à plusieurs jours, trouvez le véhicule parfait pour chaque occasion.' },
-  { icon: '📅', title: 'Location longue durée', desc: 'Des offres avantageuses pour les locations de plusieurs semaines ou mois.' },
-  { icon: '✈️', title: 'Transfert aéroport', desc: "Service de prise en charge directement à votre arrivée à l'aéroport." },
-  { icon: '🛡️', title: 'Assurance incluse', desc: 'Chaque véhicule est couvert par une assurance tous risques complète.' },
-]
-
-const CARS = [
-  { name: 'Toyota Corolla', category: 'Berline', price: '350', seats: 5, fuel: 'Essence', gear: 'Auto', icon: '🚘' },
-  { name: 'Hyundai Tucson', category: 'SUV', price: '480', seats: 5, fuel: 'Diesel', gear: 'Auto', icon: '🚙' },
-  { name: 'BMW Série 3', category: 'Premium', price: '720', seats: 5, fuel: 'Essence', gear: 'Auto', icon: '🏎️' },
 ]
 
 // ── Inline SVG Logo ──────────────────────────────────────────────────────────
@@ -84,6 +74,104 @@ export function NavLogo() {
 
 export default function Home() {
   const navigate = useNavigate()
+  
+  // État pour les voitures dynamiques
+  const [cars, setCars] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState(null)
+  const [services, setServices] = useState([])
+  const [servicesLoading, setServicesLoading] = useState(true)
+  const [servicesError, setServicesError] = useState(null)
+
+  /**
+   * Récupération des voitures depuis l'API Laravel au chargement du composant
+   */
+  useEffect(() => {
+    const fetchCars = async () => {
+      try {
+        setLoading(true)
+        const response = await axios.get('http://localhost:8000/api/cars')
+        // Limiter à 6 voitures pour la page d'accueil
+        setCars(response.data.slice(0, 6))
+        setError(null)
+      } catch (err) {
+        console.error('Erreur lors du chargement des voitures:', err)
+        setError('Impossible de charger les véhicules')
+        setCars([])
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    fetchCars()
+  }, [])
+
+  useEffect(() => {
+    const fetchServices = async () => {
+      try {
+        setServicesLoading(true)
+        const response = await axios.get('http://localhost:8000/api/services')
+        const data = Array.isArray(response.data) ? response.data : response.data?.data || []
+        setServices(data)
+        setServicesError(null)
+      } catch (err) {
+        console.error('Erreur lors du chargement des services :', err)
+        setServicesError('Impossible de charger les services pour le moment.')
+        setServices([])
+      } finally {
+        setServicesLoading(false)
+      }
+    }
+
+    fetchServices()
+  }, [])
+
+  /**
+   * Formate un nom d'icône depuis kebab-case vers PascalCase
+   * Exemples : 'calendar-x' → 'CalendarX', 'shield' → 'Shield'
+   */
+  const formatIconName = (iconName) => {
+    if (!iconName) return 'HelpCircle'
+    
+    return String(iconName)
+      .toLowerCase()
+      .split('-')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join('')
+  }
+
+  /**
+   * Recherche et retourne le composant d'icône depuis lucide-react
+   * Utilise un fallback HelpCircle si l'icône n'existe pas
+   */
+  const renderIcon = (iconName) => {
+    const formattedName = formatIconName(iconName)
+    const IconComponent = Icons[formattedName] || Icons.HelpCircle
+    
+    return (
+      <IconComponent 
+        size={32} 
+        strokeWidth={1.5}
+        style={{ color: '#2dd4bf' }}
+      />
+    )
+  }
+
+  /**
+   * Catégorie de voiture basée sur le modèle ou la marque
+   */
+  const getCategoryBadge = (brand, model) => {
+    const modelLower = model.toLowerCase()
+    const brandLower = brand.toLowerCase()
+    
+    if (modelLower.includes('tucson') || modelLower.includes('duster') || brandLower.includes('suv')) {
+      return 'SUV'
+    }
+    if (modelLower.includes('série 3') || brandLower.includes('bmw')) {
+      return 'PREMIUM'
+    }
+    return 'BERLINE'
+  }
 
   const scrollTo = (id) => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' })
@@ -188,23 +276,29 @@ export default function Home() {
 
         /* Common */
         .wrap { max-width: 1200px; margin: 0 auto; padding: 96px 48px; }
-        .tag { font-size: 11px; font-weight: 600; color: #00C9B1; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
+        .tag { font-size: 11px; font-weight: 600; color: #2dd4bf; letter-spacing: 3px; text-transform: uppercase; margin-bottom: 12px; }
         .ttl { font-size: clamp(26px,3.5vw,42px); font-weight: 700; color: #fff; line-height: 1.2; margin-bottom: 10px; }
-        .ttl span { color: #00C9B1; }
-        .bar { width: 44px; height: 3px; background: #00C9B1; border-radius: 2px; margin: 18px 0 20px; }
+        .ttl span { color: #2dd4bf; }
+        .bar { width: 44px; height: 3px; background: #2dd4bf; border-radius: 2px; margin: 18px 0 20px; }
         .sub { font-size: 14px; color: #777; font-weight: 300; line-height: 1.75; max-width: 520px; }
 
         /* Services */
-        .svc-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 20px; margin-top: 52px; }
+        .svc-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 24px; margin-top: 52px; }
         .svc-card {
-          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07);
-          border-radius: 10px; padding: 32px 28px;
-          transition: border-color 0.3s, transform 0.3s, background 0.3s;
+          background: rgba(15,23,42,0.9); border: 1px solid rgba(148,163,184,0.18);
+          border-radius: 16px; padding: 32px 28px;
+          transition: border-color 0.3s, transform 0.3s, background 0.3s, box-shadow 0.3s;
         }
-        .svc-card:hover { border-color: rgba(0,201,177,0.35); transform: translateY(-4px); background: rgba(0,201,177,0.04); }
-        .svc-icon { font-size: 34px; margin-bottom: 16px; }
-        .svc-title { font-size: 17px; font-weight: 600; color: #fff; margin-bottom: 9px; }
-        .svc-desc { font-size: 13px; color: #666; line-height: 1.7; font-weight: 300; }
+        .svc-card:hover { border-color: #2dd4bf; transform: translateY(-4px); background: rgba(45,212,191,0.06); box-shadow: 0 18px 40px rgba(45,212,191,0.16); }
+        .svc-icon {
+          width: 54px; height: 54px; border-radius: 16px;
+          display: flex; align-items: center; justify-content: center;
+          margin-bottom: 18px; background: rgba(45,212,191,0.1);
+          color: #2dd4bf;
+        }
+        .svc-icon-svg { color: #2dd4bf; }
+        .svc-title { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 10px; }
+        .svc-desc { font-size: 14px; color: #cbd5e1; line-height: 1.8; font-weight: 300; }
 
         /* Cars */
         .cars-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; margin-top: 52px; }
@@ -221,8 +315,8 @@ export default function Home() {
         .car-body { padding: 22px; }
         .car-cat { font-size: 10px; font-weight: 600; color: #00C9B1; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 5px; }
         .car-name { font-size: 17px; font-weight: 600; color: #fff; margin-bottom: 14px; }
-        .car-specs { display: flex; gap: 14px; margin-bottom: 18px; }
-        .spec { font-size: 11px; color: #555; }
+        .car-specs { display: flex; gap: 14px; margin-bottom: 18px; flex-wrap: wrap; }
+        .spec { font-size: 11px; color: #555; display: flex; align-items: center; gap: 4px; }
         .car-footer {
           display: flex; align-items: center; justify-content: space-between;
           padding-top: 14px; border-top: 1px solid rgba(255,255,255,0.06);
@@ -236,6 +330,21 @@ export default function Home() {
           cursor: pointer; transition: background 0.3s, color 0.3s; letter-spacing: 0.5px;
         }
         .btn-res:hover { background: #00C9B1; color: #0f1117; }
+
+        /* Loading spinner */
+        .spinner {
+          display: inline-block;
+          width: 40px;
+          height: 40px;
+          border: 3px solid rgba(0,201,177,0.3);
+          border-top: 3px solid #00C9B1;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+          0% { transform: rotate(0deg); }
+          100% { transform: rotate(360deg); }
+        }
 
         /* About */
         .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 72px; align-items: center; }
@@ -339,51 +448,111 @@ export default function Home() {
       {/* ─── SERVICES ─── */}
       <div id="services" style={{ background: '#0f1117' }}>
         <div className="wrap">
-          <div className="tag">Ce que nous offrons</div>
+          <div className="tag">CE QUE NOUS OFFRONS</div>
           <h2 className="ttl">Nos <span>Services</span></h2>
           <div className="bar" />
           <p className="sub">Des solutions de mobilité adaptées à tous vos besoins, avec un service de qualité premium.</p>
           <div className="svc-grid">
-            {SERVICES.map((s, i) => (
-              <div key={i} className="svc-card">
-                <div className="svc-icon">{s.icon}</div>
-                <div className="svc-title">{s.title}</div>
-                <div className="svc-desc">{s.desc}</div>
+            {servicesLoading ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', gridColumn: '1 / -1' }}>
+                <div className="spinner" style={{ margin: '0 auto' }} />
+                <p style={{ marginTop: 16, color: '#94a3b8', fontSize: 14 }}>Chargement des services...</p>
               </div>
-            ))}
+            ) : servicesError ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', gridColumn: '1 / -1', color: '#fecaca' }}>
+                <p>{servicesError}</p>
+              </div>
+            ) : services.length === 0 ? (
+              <div style={{ textAlign: 'center', padding: '40px 0', gridColumn: '1 / -1', color: '#94a3b8' }}>
+                <p>Aucun service disponible pour le moment.</p>
+              </div>
+            ) : (
+              services.map((service) => (
+                <div key={service.id} className="svc-card">
+                  <div className="svc-icon">{renderIcon(service.icon_name)}</div>
+                  <div className="svc-title">{service.title}</div>
+                  <div className="svc-desc">{service.description}</div>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>
 
-      {/* ─── CARS ─── */}
+      {/* ─── CARS (DYNAMIQUE) ─── */}
       <div id="cars" style={{ background: '#0a0c12' }}>
         <div className="wrap">
           <div className="tag">Notre flotte</div>
           <h2 className="ttl">Véhicules <span>Disponibles</span></h2>
           <div className="bar" />
           <p className="sub">Des voitures récentes, entretenues et inspectées avant chaque location.</p>
-          <div className="cars-grid">
-            {CARS.map((car, i) => (
-              <div key={i} className="car-card">
-                <div className="car-img">{car.icon}</div>
-                <div className="car-body">
-                  <div className="car-cat">{car.category}</div>
-                  <div className="car-name">{car.name}</div>
-                  <div className="car-specs">
-                    <span className="spec">👥 {car.seats} places</span>
-                    <span className="spec">⛽ {car.fuel}</span>
-                    <span className="spec">⚙️ {car.gear}</span>
+
+          {/* État de chargement */}
+          {loading ? (
+            <div style={{ textAlign: 'center', padding: '60px 0' }}>
+              <div className="spinner" style={{ margin: '0 auto' }} />
+              <p style={{ marginTop: 20, color: '#999', fontSize: 14 }}>Chargement des véhicules...</p>
+            </div>
+          ) : error ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#ff6b6b', fontSize: 14 }}>
+              <p>{error}</p>
+              <button className="btn-teal" style={{ marginTop: 20 }} onClick={() => window.location.reload()}>
+                Réessayer
+              </button>
+            </div>
+          ) : cars.length === 0 ? (
+            <div style={{ textAlign: 'center', padding: '60px 0', color: '#999', fontSize: 14 }}>
+              <p>Aucun véhicule disponible pour le moment.</p>
+            </div>
+          ) : (
+            <div className="cars-grid">
+              {cars.map((car) => (
+                <div key={car.id} className="car-card">
+                  <div className="car-img" style={{ background: 'rgba(0,201,177,0.08)' }}>
+                    {/* Image ou emoji par défaut */}
+                    {car.image_url ? (
+                      <img 
+                        src={car.image_url} 
+                        alt={`${car.brand} ${car.model}`}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                        onError={(e) => {
+                          e.target.style.display = 'none'
+                          e.target.nextSibling.style.display = 'block'
+                        }}
+                      />
+                    ) : null}
+                    <span style={{ fontSize: 68, display: car.image_url ? 'none' : 'block' }}>🚗</span>
                   </div>
-                  <div className="car-footer">
-                    <div className="price">{car.price} DH <span>/ jour</span></div>
-                    <button className="btn-res" onClick={() => navigate('/login')}>Réserver</button>
+                  <div className="car-body">
+                    <div className="car-cat">{getCategoryBadge(car.brand, car.model)}</div>
+                    <div className="car-name">{car.brand} {car.model}</div>
+                    <div className="car-specs">
+                      <span className="spec">
+                        <Icons.Users size={14} />
+                        {car.seats || 5} places
+                      </span>
+                      <span className="spec">
+                        <Icons.Fuel size={14} />
+                        Essence
+                      </span>
+                      <span className="spec">
+                        <Icons.Settings size={14} />
+                        Auto
+                      </span>
+                    </div>
+                    <div className="car-footer">
+                      <div className="price">{car.price_per_day} DH <span>/ jour</span></div>
+                      <button className="btn-res" onClick={() => navigate('/cars')}>Réserver</button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
+
+          {/* Bouton "Voir tout le catalogue" */}
           <div style={{ textAlign: 'center', marginTop: 44 }}>
-            <button className="btn-teal" onClick={() => navigate('/login')}>Voir tout le catalogue →</button>
+            <button className="btn-teal" onClick={() => navigate('/cars')}>Voir tout le catalogue →</button>
           </div>
         </div>
       </div>

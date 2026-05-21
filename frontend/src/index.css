@@ -12,6 +12,17 @@
   --shadow:
     rgba(0, 0, 0, 0.1) 0 10px 15px -3px, rgba(0, 0, 0, 0.05) 0 4px 6px -2px;
 
+  --navbar-bg: rgba(255, 255, 255, 0.92);
+  --navbar-bg-top: rgba(255, 255, 255, 0.78);
+  --navbar-text: #1f2937;
+  --navbar-text-muted: #6b7280;
+  --navbar-border: rgba(15, 23, 42, 0.08);
+  --navbar-hover: rgba(0, 201, 177, 0.15);
+  --dropdown-bg: rgba(255, 255, 255, 0.96);
+  --dropdown-border: rgba(15, 23, 42, 0.08);
+  --dropdown-text: #334155;
+  --dropdown-hover: rgba(15, 23, 42, 0.05);
+
   --sans: system-ui, 'Segoe UI', Roboto, sans-serif;
   --heading: system-ui, 'Segoe UI', Roboto, sans-serif;
   --mono: ui-monospace, Consolas, monospace;
@@ -51,8 +62,35 @@
   }
 }
 
+html.dark {
+  color-scheme: dark;
+  --text: #e2e8f0;
+  --text-h: #f8fafc;
+  --bg: #020617;
+  --border: #334155;
+  --code-bg: #111827;
+  --accent: #7dd3fc;
+  --accent-bg: rgba(56, 189, 248, 0.16);
+  --accent-border: rgba(56, 189, 248, 0.4);
+  --social-bg: rgba(30, 41, 59, 0.48);
+  --shadow: rgba(0, 0, 0, 0.45) 0 10px 15px -3px, rgba(0, 0, 0, 0.3) 0 4px 6px -2px;
+
+  --navbar-bg: rgba(15, 17, 23, 0.97);
+  --navbar-bg-top: rgba(15, 17, 23, 0.65);
+  --navbar-text: #d1d5db;
+  --navbar-text-muted: #9ca3af;
+  --navbar-border: rgba(255, 255, 255, 0.08);
+  --navbar-hover: rgba(0, 201, 177, 0.15);
+  --dropdown-bg: #111827;
+  --dropdown-border: rgba(255, 255, 255, 0.08);
+  --dropdown-text: #d1d5db;
+  --dropdown-hover: rgba(255, 255, 255, 0.05);
+}
+
 body {
   margin: 0;
+  background: var(--bg);
+  color: var(--text);
 }
 
 #root {
