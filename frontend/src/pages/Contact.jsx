@@ -1,6 +1,9 @@
 
 
+import { useTranslation } from 'react-i18next'
+
 export default function Contact() {
+  const { t } = useTranslation()
   return (
     <div style={{ background: '#0a0c12', color: '#fff', minHeight: '100vh', paddingTop: '100px', paddingBottom: '60px' }}>
       <style>{`
@@ -40,14 +43,14 @@ export default function Contact() {
       `}</style>
       <div className="wrap">
         <div className="contact-box">
-          <div className="tag" style={{ textAlign: 'center' }}>Nous contacter</div>
-          <h2 className="ttl" style={{ textAlign: 'center' }}>Une question ? <span>Écrivez-nous</span></h2>
+          <div className="tag" style={{ textAlign: 'center' }}>{t('contact_tag')}</div>
+          <h2 className="ttl" style={{ textAlign: 'center' }}>{t('contact_title')}</h2>
           <div className="bar" style={{ margin: '14px auto' }} />
           <div className="c-form">
-            <input className="f-in" placeholder="Votre nom complet" />
-            <input className="f-in" type="email" placeholder="Votre adresse email" />
-            <textarea className="f-in" placeholder="Votre message..." />
-            <button className="btn-teal">Envoyer le message</button>
+            <input className="f-in" placeholder={t('contact_name_placeholder')} />
+            <input className="f-in" type="email" placeholder={t('contact_email_placeholder')} />
+            <textarea className="f-in" placeholder={t('contact_message_placeholder')} />
+            <button className="btn-teal">{t('contact_submit')}</button>
           </div>
         </div>
       </div>

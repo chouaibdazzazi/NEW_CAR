@@ -1,38 +1,12 @@
 import { useState } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import { useAuth } from '../context/AuthContext'
+import { useTranslation } from 'react-i18next'
+import { motion } from 'framer-motion'
 
-// ── Inline SVG Logo ──────────────────────────────────────────────────────────
-function CarFlowLogoSVG({ size = 36 }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <defs>
-        <linearGradient id="cfGradS" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#00C9B1" />
-          <stop offset="100%" stopColor="#007a6e" />
-        </linearGradient>
-      </defs>
-      <path d="M80 18 A40 40 0 1 0 80 82"
-        stroke="url(#cfGradS)" strokeWidth="8" fill="none" strokeLinecap="round" />
-      <g transform="translate(22, 32) scale(0.85)">
-        <path d="M4 24 Q4 17 11 15 L24 11 Q32 7 42 9 L54 11 Q62 12 66 17 L70 24 Q74 24 74 28 L74 34 Q74 38 70 38 L8 38 Q4 38 4 34 Z"
-          fill="url(#cfGradS)" />
-        <path d="M20 15 Q24 6 37 5 Q52 4 56 15"
-          fill="none" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
-        <path d="M37 6 L37 15" stroke="rgba(255,255,255,0.6)" strokeWidth="2" strokeLinecap="round" />
-        <circle cx="17" cy="38" r="8" fill="#0f1117" stroke="url(#cfGradS)" strokeWidth="3.5" />
-        <circle cx="17" cy="38" r="3.5" fill="#00C9B1" />
-        <circle cx="60" cy="38" r="8" fill="#0f1117" stroke="url(#cfGradS)" strokeWidth="3.5" />
-        <circle cx="60" cy="38" r="3.5" fill="#00C9B1" />
-      </g>
-      <path d="M8 46 L2 46" stroke="#00C9B1" strokeWidth="2.5" strokeLinecap="round" opacity="0.8" />
-      <path d="M8 52 L0 52" stroke="#00C9B1" strokeWidth="2.5" strokeLinecap="round" opacity="0.5" />
-      <path d="M8 58 L3 58" stroke="#00C9B1" strokeWidth="2" strokeLinecap="round" opacity="0.3" />
-    </svg>
-  )
-}
 
 export default function Signup() {
+  const { t } = useTranslation()
   const { register } = useAuth()
   const navigate = useNavigate()
   const [form, setForm] = useState({ name: '', email: '', password: '', confirmPassword: '' })
@@ -43,20 +17,20 @@ export default function Signup() {
     e.preventDefault()
     setError('')
     if (!form.name || !form.email || !form.password || !form.confirmPassword) {
-      setError('Veuillez remplir tous les champs'); return
+      setError(t('error_all_fields')); return
     }
     if (form.password !== form.confirmPassword) {
-      setError('Les mots de passe ne correspondent pas'); return
+      setError(t('error_password_match')); return
     }
     if (form.password.length < 6) {
-      setError('Le mot de passe doit contenir au moins 6 caractères'); return
+      setError(t('error_password_length')); return
     }
     setLoading(true)
     try {
       const user = await register(form.name, form.email, form.password)
       navigate(user.role === 'admin' ? '/admin' : '/client')
     } catch (err) {
-      setError(err.response?.data?.message || 'Impossible de créer le compte')
+      setError(err.response?.data?.message || t('Impossible de créer le compte'))
     } finally {
       setLoading(false)
     }
@@ -73,7 +47,27 @@ export default function Signup() {
     return s
   })()
   const strengthColor = ['', '#ef4444', '#f97316', '#eab308', '#22c55e', '#00C9B1'][strength]
-  const strengthLabel = ['', 'Très faible', 'Faible', 'Moyen', 'Fort', 'Excellent'][strength]
+  const strengthLabel = ['', t('password_strength_1'), t('password_strength_2'), t('password_strength_3'), t('password_strength_4'), t('password_strength_5')][strength]
+
+  const bannerVariants = {
+    animate: { transition: { staggerChildren: 0.05 } }
+  };
+
+  const letterVariants = {
+    initial: { 
+      opacity: 0, 
+      y: -80, 
+      x: () => (Math.random() - 0.5) * 150, 
+      rotate: () => (Math.random() - 0.5) * 90 
+    },
+    animate: { 
+      opacity: 1, 
+      y: 0, 
+      x: 0, 
+      rotate: 0,
+      transition: { type: "spring", damping: 12, stiffness: 90 } 
+    }
+  };
 
   return (
     <div style={{ minHeight: '100vh', background: '#0f1117', display: 'flex', fontFamily: "'Poppins', sans-serif" }}>
@@ -88,7 +82,7 @@ export default function Signup() {
         }
         .signup-right {
           flex: 1;
-          background: linear-gradient(135deg, rgba(0,201,177,0.1) 0%, rgba(15,17,23,0) 60%), #0a0c12;
+          background: linear-gradient(135deg, rgba(0,201,177,0.12) 0%, rgba(15,17,23,0) 60%), #0a0c12;
           display: flex; flex-direction: column; justify-content: center;
           padding: 80px 72px;
           border-left: 1px solid rgba(0,201,177,0.1);
@@ -141,11 +135,19 @@ export default function Signup() {
         @keyframes spin { to { transform: rotate(360deg); } }
 
         .benefit { display: flex; gap: 16px; align-items: flex-start; }
+        
+        .benefit-link { text-decoration: none; display: inline-block; flex-shrink: 0; }
+        
         .benefit-icon {
           width: 46px; height: 46px;
-          background: rgba(0,201,177,0.1); border: 1px solid rgba(0,201,177,0.2);
+          background: rgba(0,201,177,0.04); border: 1px solid rgba(0,201,177,0.15);
           border-radius: 10px; display: flex; align-items: center; justify-content: center;
-          font-size: 21px; flex-shrink: 0;
+          color: #00C9B1; transition: border-color 0.3s, background 0.3s, transform 0.2s;
+        }
+        .benefit-link:hover .benefit-icon {
+          background: rgba(0,201,177,0.15); 
+          border-color: rgba(0,201,177,0.4);
+          transform: scale(1.05);
         }
 
         @media (max-width: 768px) {
@@ -156,19 +158,16 @@ export default function Signup() {
 
       {/* ─── LEFT: FORM ─── */}
       <div className="signup-left">
-        {/* Logo */}
-        <div onClick={() => navigate('/')}
-          style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 48, cursor: 'pointer' }}>
-          <CarFlowLogoSVG size={36} />
-          <span style={{ fontSize: 19, fontWeight: 700, color: '#fff' }}>
-            Car<span style={{ color: '#00C9B1' }}>Flow</span>
-          </span>
-        </div>
-
         <div style={{ marginBottom: 32 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#00C9B1', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 12 }}>Inscription</div>
-          <h2 style={{ fontSize: 28, fontWeight: 700, color: '#fff', marginBottom: 6 }}>Créer votre compte</h2>
-          <p style={{ fontSize: 13, color: '#555', fontWeight: 300 }}>Rejoignez CarFlow et réservez dès aujourd'hui.</p>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#00C9B1', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 12 }}>
+            {t('signup_tag')}
+          </div>
+          <h2 style={{ fontSize: 28, fontWeight: 700, color: '#fff', marginBottom: 6 }}>
+            {t('signup_title')}
+          </h2>
+          <p style={{ fontSize: 13, color: '#555', fontWeight: 300 }}>
+            {t('signup_subtitle')}
+          </p>
         </div>
 
         {error && (
@@ -183,17 +182,17 @@ export default function Signup() {
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: 18 }}>
           <div>
-            <label className="field-label">Nom complet</label>
+            <label className="field-label">{t('signup_name_label')}</label>
             <input type="text" className="field-input" value={form.name}
               onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Jean Dupont" />
           </div>
           <div>
-            <label className="field-label">Adresse email</label>
+            <label className="field-label">{t('email_label')}</label>
             <input type="email" className="field-input" value={form.email}
               onChange={e => setForm({ ...form, email: e.target.value })} placeholder="vous@example.com" />
           </div>
           <div>
-            <label className="field-label">Mot de passe</label>
+            <label className="field-label">{t('password_label')}</label>
             <input type="password" className="field-input" value={form.password}
               onChange={e => setForm({ ...form, password: e.target.value })} placeholder="••••••••" />
             {form.password && (
@@ -212,63 +211,144 @@ export default function Signup() {
             )}
           </div>
           <div>
-            <label className="field-label">Confirmer le mot de passe</label>
+            <label className="field-label">{t('signup_confirm_password_label')}</label>
             <input type="password" className="field-input" value={form.confirmPassword}
               onChange={e => setForm({ ...form, confirmPassword: e.target.value })} placeholder="••••••••" />
             {form.confirmPassword && (
               <div style={{ marginTop: 8, fontSize: 12, color: form.password === form.confirmPassword ? '#00C9B1' : '#ef4444' }}>
-                {form.password === form.confirmPassword ? '✓ Mots de passe identiques' : '✗ Ne correspondent pas'}
+                {form.password === form.confirmPassword ? t('password_match_success') : t('password_match_error')}
               </div>
             )}
           </div>
           <button type="submit" className="btn-submit" disabled={loading} style={{ marginTop: 6 }}>
-            {loading ? <><span className="spinner" />Création du compte...</> : "S'inscrire gratuitement"}
+            {loading ? <><span className="spinner" />{t('signup_loading')}</> : t('signup_btn')}
           </button>
         </form>
 
         <div style={{ marginTop: 24, textAlign: 'center', fontSize: 13, color: '#555' }}>
-          Déjà membre ?{' '}
-          <button className="link-btn" onClick={() => navigate('/login')}>Se connecter</button>
+          {t('signup_already_member')}{' '}
+          <Link className="link-btn" to="/login">{t('signup_login_link')}</Link>
         </div>
         <div style={{ marginTop: 20, textAlign: 'center' }}>
-          <button className="link-btn" onClick={() => navigate('/')} style={{ fontSize: 12, color: '#444' }}>
-            ← Retour à l'accueil
-          </button>
+          <Link className="link-btn" to="/" style={{ fontSize: 12, color: '#444' }}>
+            ← {t('back_home')}
+          </Link>
         </div>
       </div>
 
       {/* ─── RIGHT: DECORATIVE ─── */}
       <div className="signup-right">
-        {/* CarFlow logo watermark */}
-        <div style={{ position: 'absolute', top: 48, left: 56, display: 'flex', alignItems: 'center', gap: 10, zIndex: 1 }}>
-          <CarFlowLogoSVG size={34} />
-          <span style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>
-            Car<span style={{ color: '#00C9B1' }}>Flow</span>
-          </span>
-        </div>
-
         <div style={{ position: 'relative', zIndex: 1 }}>
-          <div style={{ fontSize: 11, fontWeight: 600, color: '#00C9B1', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 14 }}>Rejoignez-nous</div>
-          <h2 style={{ fontSize: 'clamp(32px,3.5vw,50px)', fontWeight: 700, color: '#fff', lineHeight: 1.2, marginBottom: 16 }}>
-            Votre voyage<br /><span style={{ color: '#00C9B1' }}>commence ici</span>
-          </h2>
+          <div style={{ fontSize: 11, fontWeight: 600, color: '#00C9B1', letterSpacing: 3, textTransform: 'uppercase', marginBottom: 14 }}>
+            {t('signup_welcome_tag')}
+          </div>
+          
+          <motion.h2 
+            variants={bannerVariants}
+            initial="initial"
+            animate="animate"
+            style={{ 
+              fontSize: 'clamp(32px,3.5vw,50px)', 
+              fontWeight: 800, 
+              lineHeight: 1.2, 
+              marginBottom: 16,
+              userSelect: 'none',
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'flex-start',
+              cursor: 'default'
+            }}
+          >
+            <span style={{ display: 'flex', color: '#fff', filter: 'drop-shadow(0 0 25px rgba(255,255,255,0.15))' }}>
+              {(t('signup_right_title_1') || "Votre voyage").split('').map((letter, index) => (
+                <motion.span
+                  key={`su-title1-${index}`}
+                  variants={letterVariants}
+                  whileHover={{ scale: 1.2, y: -8, color: '#2dd4bf' }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+                  style={{ display: 'inline-block' }}
+                >
+                  {letter === " " ? "\u00A0" : letter}
+                </motion.span>
+              ))}
+            </span>
+
+            <span style={{ display: 'flex', color: '#00C9B1', filter: 'drop-shadow(0 0 30px rgba(45,212,191,0.35))' }}>
+              {(t('signup_right_title_2') || "commence ici").split('').map((letter, index) => (
+                <motion.span
+                  key={`su-title2-${index}`}
+                  variants={letterVariants}
+                  whileHover={{ scale: 1.2, y: -8, color: '#ffffff' }}
+                  transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+                  style={{ display: 'inline-block' }}
+                >
+                  {letter === " " ? "\u00A0" : letter}
+                </motion.span>
+              ))}
+            </span>
+          </motion.h2>
+
           <div style={{ width: 44, height: 3, background: '#00C9B1', borderRadius: 2, marginBottom: 20 }} />
-          <p style={{ fontSize: 14, color: '#666', fontWeight: 300, lineHeight: 1.75, maxWidth: 360, marginBottom: 52 }}>
-            Créez votre compte en quelques instants et accédez à notre flotte de véhicules disponibles partout au Maroc.
+          <p style={{ fontSize: 14, color: '#777', fontWeight: 300, lineHeight: 1.75, maxWidth: 360, marginBottom: 52 }}>
+            {t('signup_right_desc')}
           </p>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: 26 }}>
             {[
-              ['🎯', 'Réservation instantanée', 'Confirmez en moins de 2 minutes, sans paperasse.'],
-              ['🛡️', 'Assurance tous risques', 'Incluse dans chaque location, sans supplément.'],
-              ['💎', 'Offres exclusives', 'Tarifs préférentiels et promotions réservées aux membres.'],
-              ['📱', 'Suivi en temps réel', 'Gérez vos réservations depuis votre espace client.'],
-            ].map(([icon, title, desc], i) => (
+              {
+                to: "/services",
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M19 17h2c.6 0 1-.4 1-1v-3c0-.9-.7-1.7-1.5-1.9C18.7 10.6 16 10 16 10s-1.3-1.4-2.2-2.3c-.5-.4-1.1-.7-1.8-.7H5c-.6 0-1.1.4-1.4.9l-1.4 2.9A3.7 3.7 0 0 0 2 12v4c0 .6.4 1 1 1h2" />
+                    <circle cx="7" cy="17" r="2" />
+                    <path d="M9 17h6" />
+                    <circle cx="17" cy="17" r="2" />
+                  </svg>
+                ),
+                title: t('signup_feat_title_1'),
+                desc: t('signup_feat_desc_1')
+              },
+              {
+                to: "/services",
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                  </svg>
+                ),
+                title: t('signup_feat_title_2'),
+                desc: t('signup_feat_desc_2')
+              },
+              {
+                to: "/services",
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+                  </svg>
+                ),
+                title: t('signup_feat_title_3'),
+                desc: t('signup_feat_desc_3')
+              },
+              {
+                to: "/contact",
+                icon: (
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                  </svg>
+                ),
+                title: t('signup_feat_title_4'),
+                desc: t('signup_feat_desc_4')
+              }
+            ].map((item, i) => (
               <div key={i} className="benefit">
-                <div className="benefit-icon">{icon}</div>
+                <Link to={item.to} className="benefit-link" title={`Aller vers la page ${item.to === '/services' ? 'Services' : 'Contact'}`}>
+                  <div className="benefit-icon">{item.icon}</div>
+                </Link>
                 <div>
-                  <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{title}</div>
-                  <div style={{ fontSize: 12, color: '#555', fontWeight: 300, lineHeight: 1.6 }}>{desc}</div>
+                  <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{item.title}</div>
+                  <div style={{ fontSize: 12, color: '#555', fontWeight: 300, lineHeight: 1.6 }}>{item.desc}</div>
                 </div>
               </div>
             ))}

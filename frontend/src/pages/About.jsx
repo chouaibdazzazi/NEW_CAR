@@ -1,8 +1,10 @@
 
 import { useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 
 export default function About() {
   const navigate = useNavigate();
+  const { t } = useTranslation();
 
   return (
     <div style={{ background: '#0f1117', color: '#fff', minHeight: '100vh', paddingTop: '100px', paddingBottom: '60px' }}>
@@ -42,16 +44,16 @@ export default function About() {
       <div className="wrap">
         <div className="about-grid">
           <div>
-            <div className="tag">À propos de nous</div>
-            <h2 className="ttl">Pourquoi choisir <span>CarFlow</span> ?</h2>
+            <div className="tag">{t('about_tag')}</div>
+            <h2 className="ttl">{t('about_title')}</h2>
             <div className="bar" />
-            <p className="sub">Depuis 15 ans, CarFlow est votre partenaire de confiance pour la location automobile au Maroc et à l&apos;international.</p>
+            <p className="sub">{t('about_subtitle')}</p>
             <div className="points">
               {[
-                'Véhicules récents, propres et vérifiés avant chaque location.',
-                'Réservation 100% en ligne, rapide et sécurisée.',
-                'Assistance disponible 24h/24 et 7j/7.',
-                'Prix transparents, sans frais cachés.',
+                t('about_point1'),
+                t('about_point2'),
+                t('about_point3'),
+                t('about_point4'),
               ].map((p, i) => (
                 <div key={i} className="point">
                   <div className="dot" />
@@ -60,7 +62,7 @@ export default function About() {
               ))}
             </div>
             <button className="btn-teal" style={{ marginTop: 32 }} onClick={() => navigate('/signup')}>
-              Créer un compte gratuit
+              {t('about_cta_signup')}
             </button>
           </div>
           <div className="about-img-box">

@@ -34,14 +34,19 @@ export function AuthProvider({ children }) {
   }
 
   const logout = async () => {
-    await api.post('/logout')
-    localStorage.removeItem('token')
-    setUser(null)
+    try {
+      await api.post('/logout')
+    } catch (error) {
+      console.error("Erreur lors du logout backend:", error)
+    } finally {
+      localStorage.removeItem('token')
+      setUser(null)
+    }
   }
 
   return (
     <AuthContext.Provider value={{ user, login, register, logout, isAdmin: user?.role === 'admin', loading }}>
-      {children}
+      {!loading && children}
     </AuthContext.Provider>
   )
 }

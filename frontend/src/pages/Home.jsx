@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import * as Icons from 'lucide-react'
 
@@ -74,6 +75,7 @@ export function NavLogo() {
 
 export default function Home() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
   
   // État pour les voitures dynamiques
   const [cars, setCars] = useState([])
@@ -419,10 +421,10 @@ export default function Home() {
 
         <div className="hero-content">
           <CarFlowHeroLogo />
-          <p className="hero-tagline">Votre partenaire de confiance en location automobile</p>
+          <p className="hero-tagline">{t('home_hero_tagline')}</p>
           <div className="hero-btns">
-            <button className="btn-teal" onClick={() => navigate('/login')}>Réserver maintenant</button>
-            <button className="btn-ghost" onClick={() => scrollTo('cars')}>Voir nos véhicules</button>
+            <button className="btn-teal" onClick={() => navigate('/login')}>{t('home_cta_book_now')}</button>
+            <button className="btn-ghost" onClick={() => scrollTo('cars')}>{t('home_cta_view_vehicles')}</button>
           </div>
         </div>
 
@@ -448,10 +450,10 @@ export default function Home() {
       {/* ─── SERVICES ─── */}
       <div id="services" style={{ background: '#0f1117' }}>
         <div className="wrap">
-          <div className="tag">CE QUE NOUS OFFRONS</div>
-          <h2 className="ttl">Nos <span>Services</span></h2>
+          <div className="tag">{t('hero_subtitle')}</div>
+          <h2 className="ttl">{t('home_section_services_title')}</h2>
           <div className="bar" />
-          <p className="sub">Des solutions de mobilité adaptées à tous vos besoins, avec un service de qualité premium.</p>
+          <p className="sub">{t('home_section_about_subtitle')}</p>
           <div className="svc-grid">
             {servicesLoading ? (
               <div style={{ textAlign: 'center', padding: '40px 0', gridColumn: '1 / -1' }}>
@@ -464,7 +466,7 @@ export default function Home() {
               </div>
             ) : services.length === 0 ? (
               <div style={{ textAlign: 'center', padding: '40px 0', gridColumn: '1 / -1', color: '#94a3b8' }}>
-                <p>Aucun service disponible pour le moment.</p>
+                <p>{t('home_service_error')}</p>
               </div>
             ) : (
               services.map((service) => (
@@ -482,10 +484,10 @@ export default function Home() {
       {/* ─── CARS (DYNAMIQUE) ─── */}
       <div id="cars" style={{ background: '#0a0c12' }}>
         <div className="wrap">
-          <div className="tag">Notre flotte</div>
-          <h2 className="ttl">Véhicules <span>Disponibles</span></h2>
+          <div className="tag">{t('home_section_about_title')}</div>
+          <h2 className="ttl">{t('cars_title')}</h2>
           <div className="bar" />
-          <p className="sub">Des voitures récentes, entretenues et inspectées avant chaque location.</p>
+          <p className="sub">{t('cars_subtitle')}</p>
 
           {/* État de chargement */}
           {loading ? (
@@ -497,12 +499,12 @@ export default function Home() {
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#ff6b6b', fontSize: 14 }}>
               <p>{error}</p>
               <button className="btn-teal" style={{ marginTop: 20 }} onClick={() => window.location.reload()}>
-                Réessayer
+                {t('home_cta_view_vehicles')}
               </button>
             </div>
           ) : cars.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '60px 0', color: '#999', fontSize: 14 }}>
-              <p>Aucun véhicule disponible pour le moment.</p>
+              <p>{t('home_car_no_results')}</p>
             </div>
           ) : (
             <div className="cars-grid">
@@ -542,7 +544,7 @@ export default function Home() {
                     </div>
                     <div className="car-footer">
                       <div className="price">{car.price_per_day} DH <span>/ jour</span></div>
-                      <button className="btn-res" onClick={() => navigate('/cars')}>Réserver</button>
+                      <button className="btn-res" onClick={() => navigate('/cars')}>{t('home_car_book')}</button>
                     </div>
                   </div>
                 </div>
@@ -552,7 +554,7 @@ export default function Home() {
 
           {/* Bouton "Voir tout le catalogue" */}
           <div style={{ textAlign: 'center', marginTop: 44 }}>
-            <button className="btn-teal" onClick={() => navigate('/cars')}>Voir tout le catalogue →</button>
+            <button className="btn-teal" onClick={() => navigate('/cars')}>{t('home_car_view_catalog')}</button>
           </div>
         </div>
       </div>
@@ -562,16 +564,16 @@ export default function Home() {
         <div className="wrap">
           <div className="about-grid">
             <div>
-              <div className="tag">À propos de nous</div>
-              <h2 className="ttl">Pourquoi choisir <span>CarFlow</span> ?</h2>
+              <div className="tag">{t('about_tag')}</div>
+              <h2 className="ttl">{t('about_title')}</h2>
               <div className="bar" />
-              <p className="sub">Depuis 15 ans, CarFlow est votre partenaire de confiance pour la location automobile au Maroc et à l&apos;international.</p>
+              <p className="sub">{t('about_subtitle')}</p>
               <div className="points">
                 {[
-                  'Véhicules récents, propres et vérifiés avant chaque location.',
-                  'Réservation 100% en ligne, rapide et sécurisée.',
-                  'Assistance disponible 24h/24 et 7j/7.',
-                  'Prix transparents, sans frais cachés.',
+                  t('about_point1'),
+                  t('about_point2'),
+                  t('about_point3'),
+                  t('about_point4'),
                 ].map((p, i) => (
                   <div key={i} className="point">
                     <div className="dot" />
@@ -580,7 +582,7 @@ export default function Home() {
                 ))}
               </div>
               <button className="btn-teal" style={{ marginTop: 32 }} onClick={() => navigate('/signup')}>
-                Créer un compte gratuit
+                {t('about_cta_signup')}
               </button>
             </div>
             {/* Use the uploaded car image in the about section */}
@@ -602,14 +604,14 @@ export default function Home() {
       <div id="contact" style={{ background: '#0a0c12' }}>
         <div className="wrap">
           <div className="contact-box">
-            <div className="tag" style={{ textAlign: 'center' }}>Nous contacter</div>
-            <h2 className="ttl" style={{ textAlign: 'center' }}>Une question ? <span>Écrivez-nous</span></h2>
+            <div className="tag" style={{ textAlign: 'center' }}>{t('contact_tag')}</div>
+            <h2 className="ttl" style={{ textAlign: 'center' }}>{t('contact_title')}</h2>
             <div className="bar" style={{ margin: '14px auto' }} />
             <div className="c-form">
-              <input className="f-in" placeholder="Votre nom complet" />
-              <input className="f-in" type="email" placeholder="Votre adresse email" />
-              <textarea className="f-in" placeholder="Votre message..." />
-              <button className="btn-teal">Envoyer le message</button>
+              <input className="f-in" placeholder={t('home_contact_name_placeholder')} />
+              <input className="f-in" type="email" placeholder={t('home_contact_email_placeholder')} />
+              <textarea className="f-in" placeholder={t('home_contact_message_placeholder')} />
+              <button className="btn-teal">{t('home_contact_submit')}</button>
             </div>
           </div>
         </div>
@@ -621,7 +623,7 @@ export default function Home() {
           <CarFlowLogoSVG size={28} />
           <div className="f-logo">Car<span>Flow</span></div>
         </div>
-        <p className="f-copy">© {new Date().getFullYear()} CarFlow — Tous droits réservés. Votre partenaire de confiance en location automobile.</p>
+        <p className="f-copy">{t('home_footer', { year: new Date().getFullYear() })}</p>
       </footer>
     </div>
   )

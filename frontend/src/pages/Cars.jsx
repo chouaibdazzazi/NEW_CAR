@@ -1,10 +1,12 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useTranslation } from 'react-i18next'
 import axios from 'axios'
 import { Calendar, Users, AlertCircle, Check } from 'lucide-react'
 
 export default function Cars() {
   const navigate = useNavigate()
+  const { t } = useTranslation()
 
   // État des voitures
   const [cars, setCars] = useState([])
@@ -149,7 +151,7 @@ export default function Cars() {
       <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-slate-300 dark:border-slate-700 border-t-blue-500 rounded-full animate-spin" />
-          <p className="text-slate-500 dark:text-slate-400">Chargement du parc automobile...</p>
+          <p className="text-slate-500 dark:text-slate-400">{t('cars_loading')}</p>
         </div>
       </div>
     )
@@ -163,10 +165,10 @@ export default function Cars() {
         {/* En-tête */}
         <div className="text-center mb-16">
           <h1 className="text-4xl md:text-5xl font-bold text-slate-900 dark:text-white mb-4">
-            Notre Flotte de Véhicules
+            {t('cars_title')}
           </h1>
           <p className="text-lg text-slate-500 dark:text-slate-400 max-w-2xl mx-auto">
-            Découvrez nos véhicules premium et réservez votre prochain trajet en quelques clics.
+            {t('cars_subtitle')}
           </p>
         </div>
 
@@ -201,7 +203,7 @@ export default function Cars() {
                       : 'bg-red-500/20 text-red-400 border border-red-500/30'
                   }`}
                 >
-                  {car.available ? '✓ Disponible' : '✗ Louée'}
+                  {car.available ? t('cars_available') : t('cars_rented')}
                 </span>
               </div>
 
@@ -212,26 +214,26 @@ export default function Cars() {
                 </h3>
 
                 <p className="text-sm text-slate-400 mb-4 flex-grow">
-                  {car.description || 'Confortable et fiable pour tous vos trajets.'}
+                  {car.description || t('cars_description_fallback')}
                 </p>
 
                 {/* Caractéristiques */}
                 <div className="grid grid-cols-2 gap-2 mb-4 text-xs text-slate-400">
                   <div className="flex items-center gap-1">
                     <Users className="w-4 h-4 text-slate-500" />
-                    {car.seats || 5} places
+                    {t('cars_seats_label', { seats: car.seats || 5 })}
                   </div>
                   <div className="text-slate-400">
-                    Couleur: {car.color || 'Non spécifiée'}
+                    {t('cars_color_label')}: {car.color || t('cars_color_unspecified')}
                   </div>
                 </div>
 
                 {/* Prix */}
                 <div className="mb-4 pb-4 border-t border-slate-800">
-                  <p className="text-sm text-slate-400 mb-1">À partir de</p>
+                  <p className="text-sm text-slate-400 mb-1">{t('cars_price_from')}</p>
                   <p className="text-2xl font-bold text-blue-400">
                     {car.price_per_day}
-                    <span className="text-xs text-slate-400"> MAD/jour</span>
+                    <span className="text-xs text-slate-400"> {t('cars_price_per_day')}</span>
                   </p>
                 </div>
 
@@ -241,7 +243,7 @@ export default function Cars() {
                     onClick={() => navigate(`/cars/${car.id}`)}
                     className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors text-sm font-medium"
                   >
-                    Détails
+                    {t('cars_details_button')}
                   </button>
                   <button
                     onClick={() => openReservationModal(car)}
@@ -252,7 +254,7 @@ export default function Cars() {
                         : 'bg-slate-800 text-slate-500 cursor-not-allowed'
                     }`}
                   >
-                    Réserver
+                    {t('cars_reserve_button')}
                   </button>
                 </div>
               </div>
@@ -269,10 +271,10 @@ export default function Cars() {
           <div className="bg-slate-900 border border-slate-800 rounded-2xl max-w-md w-full p-8 shadow-2xl">
             {/* En-tête */}
             <h2 className="text-2xl font-bold text-white mb-2">
-              Réserver : {selectedCar.brand} {selectedCar.model}
+              {t('cars_modal_title', { brand: selectedCar.brand, model: selectedCar.model })}
             </h2>
             <p className="text-sm text-slate-400 mb-6">
-              Sélectionnez vos dates et confirmez votre réservation.
+              {t('cars_modal_description')}
             </p>
 
             {/* Message de feedback */}
@@ -299,7 +301,7 @@ export default function Cars() {
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
                   <Calendar className="w-4 h-4 inline mr-2" />
-                  Date de début
+                  {t('cars_date_start')}
                 </label>
                 <input
                   type="date"
@@ -316,7 +318,7 @@ export default function Cars() {
               <div>
                 <label className="block text-sm font-medium text-slate-300 mb-2">
                   <Calendar className="w-4 h-4 inline mr-2" />
-                  Date de fin
+                  {t('cars_date_end')}
                 </label>
                 <input
                   type="date"
@@ -333,11 +335,11 @@ export default function Cars() {
               {estimate.days > 0 && (
                 <div className="bg-slate-800/50 border border-slate-700 rounded-lg p-4 space-y-2">
                   <div className="flex justify-between text-sm text-slate-400">
-                    <span>{estimate.days} jour(s) × {selectedCar.price_per_day} MAD</span>
+                    <span>{t('cars_estimate_days', { days: estimate.days, price: selectedCar.price_per_day })}</span>
                     <span className="text-white font-semibold">{estimate.total} MAD</span>
                   </div>
                   <div className="border-t border-slate-700 pt-2 flex justify-between text-base font-bold text-blue-400">
-                    <span>Total estimé</span>
+                    <span>{t('cars_estimate_total')}</span>
                     <span>{estimate.total} MAD</span>
                   </div>
                 </div>
@@ -351,14 +353,14 @@ export default function Cars() {
                   disabled={bookingLoading}
                   className="flex-1 px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50"
                 >
-                  Annuler
+                  {t('cars_cancel_button')}
                 </button>
                 <button
                   type="submit"
                   disabled={bookingLoading || !bookingForm.start_date || !bookingForm.end_date}
                   className="flex-1 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors font-medium disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  {bookingLoading ? 'Traitement...' : 'Confirmer'}
+                  {bookingLoading ? t('cardetails_checking') : t('cars_submit_button')}
                 </button>
               </div>
             </form>

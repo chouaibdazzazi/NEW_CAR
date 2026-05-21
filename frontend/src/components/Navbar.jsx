@@ -1,6 +1,8 @@
 import { useState, useEffect, useRef } from 'react';
 import { Link, NavLink, useNavigate, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import ThemeToggle from './ThemeToggle';
+import LanguageToggle from './LanguageToggle';
 
 function CarFlowLogoSVG({ size = 36 }) {
   return (
@@ -59,6 +61,8 @@ export default function Navbar() {
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  const { t } = useTranslation();
+
   const handleSignOut = () => {
     localStorage.removeItem('token');
     localStorage.removeItem('user');
@@ -67,11 +71,11 @@ export default function Navbar() {
   };
 
   const navLinks = [
-    { name: 'HOME', path: '/' },
-    { name: 'CARS', path: '/cars' },
-    { name: 'SERVICES', path: '/services' },
-    { name: 'ABOUT', path: '/about' },
-    { name: 'CONTACT', path: '/contact' }
+    { labelKey: 'nav_home', path: '/' },
+    { labelKey: 'nav_cars', path: '/cars' },
+    { labelKey: 'nav_services', path: '/services' },
+    { labelKey: 'nav_about', path: '/about' },
+    { labelKey: 'nav_contact', path: '/contact' }
   ];
 
   return (
@@ -152,23 +156,26 @@ export default function Navbar() {
         </NavLink>
 
         <div className="nav-center">
-          {navLinks.map(lnk => (
-            <NavLink 
-              key={lnk.name} 
-              to={lnk.path} 
+          {navLinks.map((lnk) => (
+            <NavLink
+              key={lnk.path}
+              to={lnk.path}
               className={({ isActive }) => `nav-btn ${isActive ? 'active' : ''}`}
             >
-              {lnk.name}
+              {t(lnk.labelKey)}
             </NavLink>
           ))}
           
           {/* Affiche LOGIN/SIGNUP au centre uniquement si non connecté */}
           {!isLoggedIn && (
-            <button className="nav-btn" onClick={() => navigate('/login')}>LOGIN/SIGNUP</button>
+            <button className="nav-btn" onClick={() => navigate('/login')}>
+              {t('nav_login')}
+            </button>
           )}
         </div>
 
         <div className="nav-right" ref={menuRef}>
+          <LanguageToggle />
           <ThemeToggle />
           <button className="icon-btn" title="Rechercher">🔍</button>
           
